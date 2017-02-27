@@ -1,0 +1,23 @@
+{
+    "name": "abcms/yii2-shop",
+    "type": "yii2-extension",
+    "description": "",
+    "keywords": [
+    ],
+    "authors": [
+    ],
+    "support": {
+    },
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "suggest": {
+    },
+    "autoload": {
+        "psr-4": {"abcms\\shop\\": ""}
+    },
+    "bin": [
+    ],
+    "extra": {
+    }
+}
