@@ -14,6 +14,7 @@ use Yii;
  */
 class Brand extends \abcms\library\base\BackendActiveRecord
 {
+
     /**
      * @inheritdoc
      */
@@ -46,4 +47,5 @@ class Brand extends \abcms\library\base\BackendActiveRecord
             'deleted' => 'Deleted',
         ];
     }
+
 }

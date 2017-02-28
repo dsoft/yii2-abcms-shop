@@ -7,7 +7,7 @@ use abcms\shop\models\Brand;
 use abcms\shop\models\BrandSearch;
 use abcms\library\base\AdminController;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
+use yii\helpers\Url;
 
 /**
  * BrandController implements the CRUD actions for Brand model.
@@ -17,16 +17,34 @@ class BrandController extends AdminController
 
     /**
      * Lists all Brand models.
+     * Also handles creation and updates.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($id = null)
     {
         $searchModel = new BrandSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        if($id) { // Load existing
+            $model = $this->findModel($id);
+        }
+        else { // Create new
+            $model = new Brand();
+            $model->loadDefaultValues();
+        }
+        if($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('message', 'Data saved successfully.');
+            return $this->redirect(Url::current(['id' => null]));
+        } 
+        $formFocused = false;
+        if($id || $model->hasErrors()){
+            $formFocused = true;
+        }
 
         return $this->render('index', [
                     'searchModel' => $searchModel,
                     'dataProvider' => $dataProvider,
+                    'model' => $model,
+                    'formFocused' => $formFocused,
         ]);
     }
 
