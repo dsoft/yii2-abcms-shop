@@ -44,11 +44,5 @@ $this->params['breadcrumbs'][] = $this->title;
     ])
     ?>
     
-    <?=
-    \abcms\structure\widgets\View::widget([
-        'structure' => ['name' => 'seo'], 
-        'model' => $model, 
-        'title'=>'SEO'
-        ])
-    ?>
+    <?= \abcms\structure\widgets\SeoView::widget(['model' => $model]) ?>
 </div>

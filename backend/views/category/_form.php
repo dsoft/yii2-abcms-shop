@@ -22,7 +22,7 @@ use abcms\shop\models\Category;
 
     <?= \abcms\multilanguage\widgets\TranslationForm::widget(['model' => $model]) ?>
 
-    <?= \abcms\structure\widgets\Form::widget(['structure' => ['name' => 'seo'], 'model' => $model, 'title'=>'SEO']) ?>
+    <?= \abcms\structure\widgets\SeoForm::widget(['model' => $model]) ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
