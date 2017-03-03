@@ -7,6 +7,7 @@ use abcms\shop\models\Category;
 use abcms\shop\models\CategorySearch;
 use abcms\library\base\AdminController;
 use yii\web\NotFoundHttpException;
+use abcms\structure\models\Structure;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -70,6 +71,7 @@ class CategoryController extends AdminController
         $model->loadDefaultValues();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $model->saveCustomFields();            
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -89,6 +91,7 @@ class CategoryController extends AdminController
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $model->saveCustomFields();   
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [

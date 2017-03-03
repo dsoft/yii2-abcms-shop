@@ -49,6 +49,9 @@ class Category extends \abcms\library\base\BackendActiveRecord
                     'name',
                 ],
             ],
+            [
+                'class' => \abcms\structure\behaviors\CustomFieldsBehavior::className(),
+            ],
         ]);
     }
 
