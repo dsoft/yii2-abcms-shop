@@ -3,6 +3,7 @@
 namespace abcms\shop\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "shop_brand".
@@ -46,6 +47,17 @@ class Brand extends \abcms\library\base\BackendActiveRecord
             'active' => 'Active',
             'deleted' => 'Deleted',
         ];
+    }
+
+    /**
+     * Return brands list array, to be used in drop down lists.
+     * @return array
+     */
+    public static function getBrandsList()
+    {
+        $query = Brand::find()->orderBy('name ASC');
+        $models = $query->all();
+        return ArrayHelper::map($models, 'id', 'name');
     }
 
 }

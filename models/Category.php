@@ -77,7 +77,7 @@ class Category extends \abcms\library\base\BackendActiveRecord
     {
         return $this->hasOne(Category::className(), ['id' => 'parentId']);
     }
-    
+
     /**
      * Get parent category name
      * @return string|null
@@ -86,7 +86,7 @@ class Category extends \abcms\library\base\BackendActiveRecord
     {
         return $this->parent ? $this->parent->name : null;
     }
-    
+
     /**
      * Return parents list array, to be used in drop down lists.
      * @return array
@@ -94,9 +94,20 @@ class Category extends \abcms\library\base\BackendActiveRecord
     public static function getParentsList($excludeId = null)
     {
         $query = self::find()->andWhere(['parentId' => null])->orderBy('name ASC');
-        if($excludeId){
+        if($excludeId) {
             $query->andWhere(['not in', 'id', $excludeId]);
         }
+        $models = $query->all();
+        return ArrayHelper::map($models, 'id', 'name');
+    }
+
+    /**
+     * Return categories list array, to be used in drop down lists.
+     * @return array
+     */
+    public static function getCategoriesList()
+    {
+        $query = Category::find()->orderBy('name ASC');
         $models = $query->all();
         return ArrayHelper::map($models, 'id', 'name');
     }

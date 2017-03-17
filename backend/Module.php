@@ -11,6 +11,11 @@ class Module extends \yii\base\Module
      * @inheritdoc
      */
     public $controllerNamespace = 'abcms\shop\backend\controllers';
+    
+    /**
+     * @var string Gallery module base route
+     */
+    public $galleryRoute = '/admin/gallery';
 
     /**
      * @inheritdoc

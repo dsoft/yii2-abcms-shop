@@ -15,7 +15,7 @@ use abcms\shop\models\Category;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'parentId')->dropDownList(Category::getParentsList($model->id), ['prompt' => 'Select parent.']) ?>
+    <?= $form->field($model, 'parentId')->dropDownList(Category::getParentsList($model->id), ['prompt' => 'Select parent']) ?>
 
     <?= $form->field($model, 'active')->checkbox() ?>
 
