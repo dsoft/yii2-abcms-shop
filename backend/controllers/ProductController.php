@@ -9,6 +9,10 @@ use abcms\library\base\AdminController;
 use yii\web\NotFoundHttpException;
 use yii\data\ActiveDataProvider;
 use abcms\gallery\module\models\GalleryImage;
+use abcms\shop\models\ProductVariation;
+use abcms\shop\models\ProductVariationAttribute;
+use yii\base\Model;
+use yii\helpers\Url;
 
 /**
  * ProductController implements the CRUD actions for Product model.
@@ -51,15 +55,59 @@ class ProductController extends AdminController
      * @param integer $id
      * @return mixed
      */
-    public function actionView($id)
+    public function actionView($id, $variationId = null)
     {
         $model = $this->findModel($id);
         $imageDataProvider = new ActiveDataProvider([
             'query' => GalleryImage::find()->andWhere(['albumId'=>$model->albumId]),
         ]);
+        
+        // variatios related code
+        $variationDataProvider = new ActiveDataProvider([
+            'query' => ProductVariation::find()->andWhere(['productId'=>$model->id]),
+        ]);
+        $variation = null;
+        if($variationId) { // Load existing
+            $variation = ProductVariation::findOne($variationId);
+        }
+        if(!$variation){
+            $variation = new ProductVariation();
+            $variation->loadDefaultValues();
+        }
+        $attributes = $variation->productVariationAttributes;
+        if(!$attributes){
+            $attributes = [new ProductVariationAttribute(), new ProductVariationAttribute()];
+        }
+        $variationFormFocused = false;
+        if($variation->load(Yii::$app->request->post()) && Model::loadMultiple($attributes, Yii::$app->request->post())) { // Load, validate and save form
+            $variation->productId = $model->id;
+            $valid = $variation->validate();
+            $valid = Model::validateMultiple($attributes) && $valid;
+            if($valid){
+                if($variation->save(false)){
+                    foreach($attributes as $attribute){
+                        $attribute->variationId = $variation->id;
+                        $attribute->save(false);
+                    }
+                    Yii::$app->session->setFlash('message', 'Data saved successfully.');
+                    return $this->redirect(Url::current(['variationId' => null]));
+                }
+            }
+            else{
+                $variationFormFocused = true;
+            }
+        } 
+        if($variationId){
+            $variationFormFocused = true;
+        }
+        
         return $this->render('view', [
             'model' => $model,
             'imageDataProvider' => $imageDataProvider,
+            'variationDataProvider' => $variationDataProvider,
+            'variation' => $variation,
+            'attributes' => $attributes,
+            'variationFormFocused' => $variationFormFocused,
         ]);
     }
 

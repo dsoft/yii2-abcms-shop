@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\grid\GridView;
 use yii\helpers\Url;
+use abcms\library\grid\InlineFormGridView;
 
 /* @var $this yii\web\View */
 /* @var $model abcms\shop\models\Product */
@@ -54,6 +55,43 @@ $this->params['breadcrumbs'][] = $this->title;
     ?>
 
     <?= \abcms\structure\widgets\SeoView::widget(['model' => $model]) ?>
+
+    <h2><br />Variations</h2>
+
+    <?=
+    InlineFormGridView::widget([
+        'dataProvider' => $variationDataProvider,
+        'columns' => [
+            [
+                'class' => 'yii\grid\SerialColumn',
+                'footer' => '<b>'.($variation->isNewRecord ? 'Add new item:' : 'Update Variation').'</b>',
+            ],
+            [
+                'header' => 'Variation',
+                'value' => function($data) {
+                    return $data->getText();
+                },
+                'footer' => $this->render('_variation-input', ['attributes'=>$attributes]),
+            ],
+            [
+                'attribute' => 'quantity',
+                'footer' => Html::activeTextInput($variation, 'quantity', ['class' => 'form-control', 'placeholder' => 'Quantity']).Html::error($variation, 'quantity', ['class' => 'help-block']),
+                'footerOptions' => ['class' => $variation->hasErrors('quantity') ? 'has-error' : ''],
+            ],
+            [
+                'class' => yii\grid\ActionColumn::className(),
+                'template' => '{update} {delete}',
+                'footer' => Html::submitButton($variation->isNewRecord ? 'Create' : 'Update', ['class' => $variation->isNewRecord ? 'btn btn-success' : 'btn btn-primary'])
+                .(!$variation->isNewRecord ? ' '.Html::a('Cancel', Url::current(['id'=>null]), ['class'=>'btn btn-danger']) : ''),
+                'buttons' => [
+                    'update' => function ($url, $variation, $key) {
+                        return Html::a(Html::tag('span', '', ['class' => "glyphicon glyphicon-pencil"]), Url::current(['variationId'=>$variation->id]));
+                    },
+                ],
+            ],
+        ],
+    ]);
+    ?>
 
     <h2><br />Images</h2>
 
