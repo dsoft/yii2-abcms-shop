@@ -52,6 +52,11 @@ class Category extends \abcms\library\base\BackendActiveRecord
             [
                 'class' => \abcms\structure\behaviors\CustomFieldsBehavior::className(),
             ],
+            [
+                'class' => \abcms\library\behaviors\SeoBehavior::className(),
+                'route' => '/shop/category',
+                'titleAttribute' => 'name',
+            ],
         ]);
     }
 
@@ -86,6 +91,17 @@ class Category extends \abcms\library\base\BackendActiveRecord
     {
         return $this->parent ? $this->parent->name : null;
     }
+    
+    /**
+     * Get children belonging to this category.
+     * @return mixed
+     */
+    public function getChildren()
+    {
+        return $this->hasMany(Category::className(), ['parentId' => 'id'])->andWhere([
+            'active' => 1,
+        ])->orderBy('name ASC');
+    }
 
     /**
      * Return parents list array, to be used in drop down lists.
@@ -110,6 +126,18 @@ class Category extends \abcms\library\base\BackendActiveRecord
         $query = Category::find()->orderBy('name ASC');
         $models = $query->all();
         return ArrayHelper::map($models, 'id', 'name');
+    }
+    
+    /**
+     * Get categories models with children, used in frontend.
+     * @return Category[]
+     */
+    public static function getFrontendCategories(){
+        $query = self::find();
+        $query->andWhere(['parentId' => null, 'active'=>1])->orderBy('name ASC');
+        $query->with(['children']);
+        $models = $query->all();
+        return $models;
     }
 
 }
