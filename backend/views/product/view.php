@@ -86,7 +86,7 @@ if($variationFormFocused){
                 'class' => yii\grid\ActionColumn::className(),
                 'template' => '{update} {delete}',
                 'footer' => Html::submitButton($variation->isNewRecord ? 'Create' : 'Update', ['class' => $variation->isNewRecord ? 'btn btn-success' : 'btn btn-primary'])
-                .(!$variation->isNewRecord ? ' '.Html::a('Cancel', Url::current(['id'=>null]), ['class'=>'btn btn-danger']) : ''),
+                .(!$variation->isNewRecord ? ' '.Html::a('Cancel', Url::current(['variationId'=>null]), ['class'=>'btn btn-danger']) : ''),
                 'buttons' => [
                     'update' => function ($url, $variation, $key) {
                         return Html::a(Html::tag('span', '', ['class' => "glyphicon glyphicon-pencil"]), Url::current(['variationId'=>$variation->id]));
@@ -121,7 +121,12 @@ if($variationFormFocused){
             'ordering',
             [
                 'class' => abcms\library\grid\ActivateColumn::className(),
-                'controller' => 'image',
+                'urlCreator' => function($action, $m, $key, $index) {
+                    $params = ['id' => (string) $key];
+                    $params[0] = Yii::$app->controller->module->galleryRoute.'/image/activate';
+                    $params['returnUrl'] = Url::current();
+                    return Url::toRoute($params);
+                },
             ],
             [
                 'class' => yii\grid\ActionColumn::className(),
