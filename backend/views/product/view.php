@@ -12,6 +12,10 @@ use abcms\library\grid\InlineFormGridView;
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Products', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+if($variationFormFocused){
+    $this->registerJs("$('html, body').animate({scrollTop: $('#inline-form').offset().top}, 0);");
+}
 ?>
 <div class="product-view">
 
@@ -86,6 +90,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 'buttons' => [
                     'update' => function ($url, $variation, $key) {
                         return Html::a(Html::tag('span', '', ['class' => "glyphicon glyphicon-pencil"]), Url::current(['variationId'=>$variation->id]));
+                    },
+                    'delete' => function ($url, $variation, $key) {
+                        return Html::a(Html::tag('span', '', ['class' => "glyphicon glyphicon-trash"]), ['delete-variation', 'id'=>$variation->id], [
+                                            'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
+                                            'data-method' => 'post',
+                                        ]);
                     },
                 ],
             ],

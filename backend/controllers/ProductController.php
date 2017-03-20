@@ -74,17 +74,29 @@ class ProductController extends AdminController
             $variation = new ProductVariation();
             $variation->loadDefaultValues();
         }
-        $attributes = $variation->productVariationAttributes;
-        if(!$attributes){
-            $attributes = [new ProductVariationAttribute(), new ProductVariationAttribute()];
+        
+        $attributes = [];
+        $postCount = count(Yii::$app->request->post('ProductVariationAttribute', []));
+        if($postCount){
+            for($i = 0; $i < $postCount; $i++) {
+                $attributes[] = new ProductVariationAttribute();
+            }
         }
+        else{
+            $attributes = $variation->productVariationAttributes 
+                    ? $variation->productVariationAttributes
+                    : [new ProductVariationAttribute()];   
+        }
+        
         $variationFormFocused = false;
+        
         if($variation->load(Yii::$app->request->post()) && Model::loadMultiple($attributes, Yii::$app->request->post())) { // Load, validate and save form
             $variation->productId = $model->id;
             $valid = $variation->validate();
             $valid = Model::validateMultiple($attributes) && $valid;
             if($valid){
                 if($variation->save(false)){
+                    ProductVariationAttribute::deleteAll(['variationId'=>$variation->id]);
                     foreach($attributes as $attribute){
                         $attribute->variationId = $variation->id;
                         $attribute->save(false);
@@ -168,6 +180,21 @@ class ProductController extends AdminController
 
         return $this->redirect(['index']);
     }
+    
+    /**
+     * Deletes an existing ProductVariation model.
+     * If deletion is successful, the browser will be redirected to the product detail page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionDeleteVariation($id)
+    {
+        $model = $this->findVariationModel($id);
+        $productId = $model->productId;
+        $model->delete();
+        Yii::$app->session->setFlash('message', 'Variation deleted successfully.');
+        return $this->redirect(['view', 'id'=>$productId]);
+    }
 
     /**
      * Finds the Product model based on its primary key value.
@@ -179,6 +206,22 @@ class ProductController extends AdminController
     protected function findModel($id)
     {
         if (($model = Product::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+    
+    /**
+     * Finds the ProductVariation model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return ProductVariation the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findVariationModel($id)
+    {
+        if (($model = ProductVariation::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
