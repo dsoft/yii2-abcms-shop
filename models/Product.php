@@ -5,6 +5,7 @@ namespace abcms\shop\models;
 use Yii;
 use abcms\library\behaviors\TimeBehavior;
 use abcms\gallery\module\models\GalleryAlbum;
+use abcms\gallery\module\models\GalleryImage;
 
 /**
  * This is the model class for table "shop_product".
@@ -65,6 +66,11 @@ class Product extends \abcms\library\base\BackendActiveRecord
             ],
             [
                 'class' => \abcms\structure\behaviors\CustomFieldsBehavior::className(),
+            ],
+            [
+                'class' => \abcms\library\behaviors\SeoBehavior::className(),
+                'route' => '/shop/product',
+                'titleAttribute' => 'name',
             ],
         ]);
     }
@@ -127,6 +133,27 @@ class Product extends \abcms\library\base\BackendActiveRecord
     }
 
     /**
+     * Get Image Album that belongs to this model
+     * @return mixed
+     */
+    public function getAlbum()
+    {
+        return $this->hasOne(GalleryAlbum::className(), ['id' => 'albumId'])->active()->with(['activeImages']);
+    }
+
+    /**
+     * Get images of this product
+     * @return GalleryImage[]
+     */
+    public function getImages()
+    {
+        if($this->album) {
+            return $this->album->activeImages;
+        }
+        return [];
+    }
+
+    /**
      * Save product images
      */
     public function saveImages()
@@ -136,6 +163,36 @@ class Product extends \abcms\library\base\BackendActiveRecord
             $this->albumId = $albumId;
             $this->save(false);
         }
+    }
+
+    /**
+     * Return the thumbnail image link
+     * @return string
+     */
+    public function getThumbLink()
+    {
+        $images = $this->getImages();
+        if(isset($images[0])) {
+            return $images[0]->returnImageLink('small');
+        }
+        return null;
+    }
+
+    /**
+     * Get similar products: products in same category with closest price.
+     * @param integer $count
+     * @return Product[]
+     */
+    public function getSimilarProducts($count = 6)
+    {
+        $query = self::find();
+        $query->andWhere(['active' => 1, 'categoryId' => $this->categoryId]);
+        $query->andWhere(['!=', 'id', $this->id]);
+        $query->with(['album']);
+        $query->orderBy(new \yii\db\Expression("ABS($this->finalPrice - finalPrice) ASC"));
+        $query->limit($count);
+        $models = $query->all();
+        return $models;
     }
 
 }
