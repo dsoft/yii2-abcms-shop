@@ -16,6 +16,11 @@ use yii\helpers\ArrayHelper;
  */
 class Category extends \abcms\library\base\BackendActiveRecord
 {
+    
+    /**
+     * @var int Number of products under this category
+     */
+    public $productCount = null;
 
     /**
      * @inheritdoc
@@ -138,6 +143,28 @@ class Category extends \abcms\library\base\BackendActiveRecord
         $query->with(['children']);
         $models = $query->all();
         return $models;
+    }
+    
+    /**
+     * Get sub categories ids
+     * @param int $categoryId
+     * @return array
+     */
+    public static function getChildrenIds($categoryId = null){
+        if($categoryId){
+            $ids = Category::find()->select('id')->andWhere(['parentId' => $categoryId, 'active'=>1])->column();
+        }
+        else{
+            $categories = self::find()->andWhere(['parentId' => null, 'active'=>1])->with(['children'])->asArray()->all();
+            $ids = [];
+            foreach($categories as $category){
+                $ids[$category['id']] = [];
+                foreach($category['children'] as $child){
+                    $ids[$category['id']][] = $child['id'];
+                }
+            }
+        }
+        return $ids;
     }
 
 }
