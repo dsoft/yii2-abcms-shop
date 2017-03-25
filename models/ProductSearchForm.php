@@ -28,6 +28,11 @@ class ProductSearchForm extends Model
      * @var int Category ID
      */
     public $categoryId;
+    
+    /**
+     * @var array Variations array where key is the attribute id and value is the attribute values
+     */
+    public $variations;
 
     /**
      * @return array the validation rules.
@@ -66,6 +71,18 @@ class ProductSearchForm extends Model
         if(isset($data['category']) && $data['category']) {
             $this->categoryId =(int)$data['category'];
         }
+        if(isset($data['v']) && $data['v'] && is_array($data['v'])) {
+            $variations = [];
+            foreach($data['v'] as $key=>$values){
+                if(!is_array($values)){
+                    $values = [$values];
+                }
+                foreach($values as $value){
+                    $variations[(int)$key][] = HtmlPurifier::process($value);
+                }
+            }
+            $this->variations = $variations;
+        }
         return true;
     }
 
@@ -75,7 +92,7 @@ class ProductSearchForm extends Model
      */
     public function hasSearch()
     {
-        if($this->q || $this->orderBy || $this->categoryId) {
+        if($this->q || $this->orderBy || $this->categoryId || $this->variations) {
             return true;
         }
         return false;
@@ -87,12 +104,18 @@ class ProductSearchForm extends Model
      */
     public function getSearchRoute()
     {
-        return ['/shop/search', 'q' => $this->q, 'order' => $this->orderBy, 'category' => $this->categoryId];
+        return [
+            '/shop/search', 
+            'q' => $this->q, 
+            'order' => $this->orderBy, 
+            'category' => $this->categoryId,
+            'v' => $this->variations,
+                ];
     }
     
     /**
-     * Returns serach url
-     * @param array $attribute attriutes that you want to overwrite
+     * Returns search url
+     * @param array $attribute attributes that you want to overwrite
      * @return string
      */
     public function getSearchUrl($attribute = []){
@@ -104,7 +127,7 @@ class ProductSearchForm extends Model
     }
 
     /**
-     * Return the search url without certain vriable
+     * Return the search url without certain variable
      * @param string|array $attribute attribute that should be removed from search url
      * @return string
      */
@@ -118,6 +141,43 @@ class ProductSearchForm extends Model
             unset($route[$att]);
         }
         return Url::to($route);
+    }
+    
+    /**
+     * Return the variations search url
+     * @param int $attributeId
+     * @param string $value
+     * @param string $action add or remove
+     * @return string
+     */
+    public function getVariationSearchUrl($attributeId, $value, $action = 'add'){
+        $variations = $this->variations;
+        if($action == 'add' 
+                && (!isset($variations[$attributeId]) || !in_array($value, $variations[$attributeId]))){
+            $variations[$attributeId][] = $value;
+        }
+        elseif($action == 'remove' && isset($variations[$attributeId])){
+            if($value === null){
+                unset($variations[$attributeId]);
+            }
+            elseif(($key = array_search($value, $variations[$attributeId])) !== false){
+                unset($variations[$attributeId][$key]);
+            }
+        }
+        return $this->getSearchUrl(['v'=>$variations]);
+    }
+    
+    /**
+     * Check if variation exists in variations attribute.
+     * @param int $attributeId
+     * @param string $value
+     * @return boolean
+     */
+    public function isVariationSelected($attributeId, $value){
+        if(isset($this->variations[$attributeId]) && in_array($value, $this->variations[$attributeId])){
+            return true;
+        }
+        return false;
     }
 
     /**

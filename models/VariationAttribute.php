@@ -13,6 +13,10 @@ use yii\helpers\ArrayHelper;
  */
 class VariationAttribute extends \yii\db\ActiveRecord
 {
+    /**
+     * @var array Possible attribute values, used in frontend to display values in search.
+     */
+    public $values = null;
 
     /**
      * @inheritdoc

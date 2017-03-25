@@ -7,6 +7,7 @@ use yii\base\Object;
 use abcms\shop\models\Product;
 use yii\data\Pagination;
 use abcms\shop\models\Category;
+use abcms\shop\models\VariationAttribute;
 
 /**
  * Products search class
@@ -38,12 +39,17 @@ class Search extends Object
      * @var int $categoryId 
      */
     public $categoryId = null;
+    
+    /**
+     * @var array Variations array where key is the attributeId and value is the attributes value or array.
+     */
+    public $variations = null;
 
     /**
      * Returns model search query class.
      * @return \yii\db\ActiveQuery
      */
-    public function getQuery()
+    public function getQuery($exclusion = [])
     {
         $query = Product::find()->active();
         $query->with(['album']);
@@ -61,6 +67,21 @@ class Search extends Object
         }
         if($this->categoryId) {
             $query->andWhere(['categoryId' => $this->getCategoriesForSearch()]);
+        }
+        if($this->variations && is_array($this->variations) && !in_array('variations', $exclusion)){
+            $i = 0;
+            foreach($this->variations as $attributeId => $attributes){
+                $i++;
+                $query->innerJoin("shop_product_variation as variation$i", "variation$i.productId = shop_product.id");
+                $query->innerJoin("shop_product_variation_attribute as attribute$i", "attribute$i.variationId = variation$i.id");
+                $query->andWhere([
+                    "attribute$i.attributeId"=>$attributeId,
+                    "attribute$i.value" => $attributes,
+                        ]);
+                if($i>1){
+                    $query->andWhere("variation$i.id = variation1.id");
+                }
+            }
         }
         return $query;
     }
@@ -180,6 +201,7 @@ class Search extends Object
         $query = $this->getQuery();
         $query->offset = 0;
         $query->limit = null;
+        $query->with = null;
         $query->groupBy('categoryId');
         $query->select('*, count(*) AS count');
         $array = $query->asArray()->all();
@@ -188,6 +210,34 @@ class Search extends Object
             $categories[$val['categoryId']] = $val['count'];
         }
         return $categories;
+    }
+    
+    /**
+     * Return variations attributes that are available in this search. 
+     * @return VariationAttribute[]
+     */
+    public function getVariationAttributes(){
+        $query = $this->getQuery(['variations']);
+        $query->offset = 0;
+        $query->limit = null;
+        $query->with = null;
+        $query->innerJoin("shop_product_variation as variation", "variation.productId = shop_product.id");
+        $query->innerJoin("shop_product_variation_attribute as attribute", "attribute.variationId = variation.id");
+        $query->groupBy('attribute.attributeId, attribute.value');
+        $query->select('*, attribute.attributeId, attribute.value, count(*) as count');
+        $array = $query->asArray()->all();
+        $attributesIds = [];
+        foreach($array as $val) {
+            $attributesIds[$val['attributeId']][$val['value']] = $val['count'];
+        }
+        if($attributesIds){
+            $models = VariationAttribute::find()->andWhere(['id'=> array_keys($attributesIds)])->all();
+            foreach($models as $model){
+                $model->values = $attributesIds[$model->id];
+            }
+            return $models;
+        }
+        return [];
     }
 
 }
