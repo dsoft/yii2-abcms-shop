@@ -33,6 +33,21 @@ class ProductSearchForm extends Model
      * @var array Variations array where key is the attribute id and value is the attribute values
      */
     public $variations;
+    
+    /**
+     * @var int min price
+     */
+    public $min;
+    
+    /**
+     * @var int max price
+     */
+    public $max;
+    
+    /**
+     * @var boolean true to search only for items on sale.
+     */
+    public $sale;
 
     /**
      * @return array the validation rules.
@@ -83,6 +98,15 @@ class ProductSearchForm extends Model
             }
             $this->variations = $variations;
         }
+        if(isset($data['min']) && $data['min']) {
+            $this->min = (int)$data['min'];
+        }
+        if(isset($data['max']) && $data['max']) {
+            $this->max = (int)$data['max'];
+        }
+        if(isset($data['sale']) && $data['sale'] === '1') {
+            $this->sale = true;
+        }
         return true;
     }
 
@@ -92,7 +116,7 @@ class ProductSearchForm extends Model
      */
     public function hasSearch()
     {
-        if($this->q || $this->orderBy || $this->categoryId || $this->variations) {
+        if($this->q || $this->orderBy || $this->categoryId || $this->variations || $this->min || $this->max || $this->sale) {
             return true;
         }
         return false;
@@ -110,6 +134,9 @@ class ProductSearchForm extends Model
             'order' => $this->orderBy, 
             'category' => $this->categoryId,
             'v' => $this->variations,
+            'min' => $this->min,
+            'max' => $this->max,
+            'sale' => $this->sale,
                 ];
     }
     

@@ -16,27 +16,27 @@ class Search extends Object
 {
 
     /**
-     * @var array|string Search order
+     * @var array|string Search order.
      */
     public $orderBy = null;
 
     /**
-     * @var int|null $limit Number of results to return
+     * @var int|null $limit Number of results to return.
      */
     public $limit = null;
 
     /**
-     * @var int $offset return results after this number
+     * @var int $offset return results after this number.
      */
     public $offset = 0;
 
     /**
-     * @var string $keyword the keyword to be searched
+     * @var string $keyword the keyword to be searched.
      */
     public $keyword = null;
 
     /**
-     * @var int $categoryId 
+     * @var int $categoryId
      */
     public $categoryId = null;
     
@@ -44,6 +44,21 @@ class Search extends Object
      * @var array Variations array where key is the attributeId and value is the attributes value or array.
      */
     public $variations = null;
+    
+    /**
+     * @var int min price.
+     */
+    public $min = null;
+    
+    /**
+     * @var int max price.
+     */
+    public $max = null;
+    
+    /**
+     * @var boolean If true return product on sale only.
+     */
+    public $sale = false;
 
     /**
      * Returns model search query class.
@@ -82,6 +97,15 @@ class Search extends Object
                     $query->andWhere("variation$i.id = variation1.id");
                 }
             }
+        }
+        if($this->min && !in_array('min', $exclusion)){
+            $query->andWhere(['>=', 'finalPrice', $this->min]);
+        }
+        if($this->max && !in_array('max', $exclusion)){
+            $query->andWhere(['<=', 'finalPrice', $this->max]);
+        }
+        if($this->sale){
+            $query->andWhere('finalPrice < originalPrice');
         }
         return $query;
     }
@@ -238,6 +262,25 @@ class Search extends Object
             return $models;
         }
         return [];
+    }
+    
+    /**
+     * Returns an array containing the minimum price and the maximum price
+     * @return array
+     */
+    public function getPriceLimit()
+    {
+        $query = $this->getQuery(['min', 'max']);
+        $query->offset = 0;
+        $query->limit = null;
+        $query->with = null;
+        $query->select('min(finalPrice) as min, max(finalPrice) as max');
+        $command = $query->createCommand();
+        $return = $command->queryOne();
+        if(isset($return['min']) && isset($return['max'])){
+            return [(int)$return['min'], (int)$return['max']];
+        }
+        return null;
     }
 
 }
