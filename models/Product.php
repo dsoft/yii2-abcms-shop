@@ -6,6 +6,7 @@ use Yii;
 use abcms\library\behaviors\TimeBehavior;
 use abcms\gallery\module\models\GalleryAlbum;
 use abcms\gallery\module\models\GalleryImage;
+use yii\db\Query;
 
 /**
  * This is the model class for table "shop_product".
@@ -154,6 +155,17 @@ class Product extends \abcms\library\base\BackendActiveRecord
     }
 
     /**
+     * Get variations of this product
+     * @return mixed
+     */
+    public function getVariations()
+    {
+        return $this->hasMany(ProductVariation::className(), ['productId' => 'id'])
+                        ->andWhere('(quantity IS NULL OR quantity > 0)')
+                        ->orderBy('id ASC')->with(['productVariationAttributes', 'productVariationAttributes.variationAttribute']);
+    }
+
+    /**
      * Save product images
      */
     public function saveImages()
@@ -193,6 +205,30 @@ class Product extends \abcms\library\base\BackendActiveRecord
         $query->limit($count);
         $models = $query->all();
         return $models;
+    }
+
+    
+    public function getVariationsArray()
+    {
+        $attributesQuery = "SELECT DISTINCT(attributeId) FROM `shop_product_variation` as variation INNER JOIN `shop_product_variation_attribute` as attribute ON attribute.variationId = variation.id WHERE productId = :id AND (quantity IS NULL OR quantity > 0) ORDER BY attribute.id ASC";
+        $uniqueAttributesIds = Yii::$app->db->createCommand($attributesQuery)->bindValue(':id', $this->id)->queryColumn();
+        
+        
+        $query = new Query();
+        $columns = ['variation.id', 'variation.quantity'];
+        foreach($uniqueAttributesIds as $attributeId){
+            $attributeId = (int)$attributeId;
+            $columns[] = "attribute$attributeId.value as value$attributeId";
+        }
+        $query->select($columns)->from('shop_product_variation as variation');
+        $query->andWhere(['productId'=>$this->id]);
+        $query->andWhere('(quantity IS NULL OR quantity > 0)');
+        foreach($uniqueAttributesIds as $attributeId){
+            $attributeId = (int)$attributeId;
+            $query->join('INNER JOIN', "shop_product_variation_attribute as attribute$attributeId", "attribute$attributeId.variationId = variation.id AND attribute$attributeId.attributeId = $attributeId");
+        }
+        $variations = $query->all();
+        return $variations;
     }
 
 }
