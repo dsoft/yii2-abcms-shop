@@ -67,7 +67,7 @@ class Search extends Object
     public function getQuery($exclusion = [])
     {
         $query = Product::find()->active();
-        $query->with(['album']);
+        $query->with(['album', 'variations']);
         if(!$this->orderBy && !$this->keyword) { // Default order by
             $this->orderBy = ['time' => SORT_DESC];
         }

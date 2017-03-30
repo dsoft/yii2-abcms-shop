@@ -3,6 +3,7 @@
 namespace abcms\shop\models;
 
 use Yii;
+use abcms\library\behaviors\TimeBehavior;
 
 /**
  * This is the model class for table "shop_cart_product".

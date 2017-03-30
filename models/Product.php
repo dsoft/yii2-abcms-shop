@@ -160,9 +160,7 @@ class Product extends \abcms\library\base\BackendActiveRecord
      */
     public function getVariations()
     {
-        return $this->hasMany(ProductVariation::className(), ['productId' => 'id'])
-                        ->andWhere('(quantity IS NULL OR quantity > 0)')
-                        ->orderBy('id ASC')->with(['productVariationAttributes', 'productVariationAttributes.variationAttribute']);
+        return $this->hasMany(ProductVariation::className(), ['productId' => 'id']);
     }
 
     /**
@@ -291,6 +289,17 @@ class Product extends \abcms\library\base\BackendActiveRecord
             $variationsArray = $getVariationArray($uniqueAttributes, $variations);
         }
         return $variationsArray;
+    }
+    
+    /**
+     * If product has variations return true.
+     * @return boolean
+     */
+    public function hasVariations(){
+        if($this->variations){
+            return true;
+        }
+        return false;
     }
 
 }
