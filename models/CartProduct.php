@@ -62,4 +62,30 @@ class CartProduct extends \yii\db\ActiveRecord
             'time' => 'Time',
         ];
     }
+    
+    /**
+     * Product relation
+     * @return mixed
+     */
+    public function getProduct()
+    {
+        return $this->hasOne(Product::className(), ['id' => 'productId'])->andWhere(['active'=>1]);
+    }
+    
+    /**
+     * ProductVariation relation
+     * @return mixed
+     */
+    public function getVariation()
+    {
+        return $this->hasOne(ProductVariation::className(), ['id' => 'variationId']);
+    }
+    
+    /**
+     * Get product total price
+     * @return int
+     */
+    public function getTotal(){
+        return $this->product->finalPrice * $this->quantity;
+    }
 }

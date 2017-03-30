@@ -66,6 +66,15 @@ class Cart extends \yii\db\ActiveRecord
     }
     
     /**
+     * Get CartProducts belonging to this cart.
+     * @return mixed
+     */
+    public function getCartProducts()
+    {
+        return $this->hasMany(CartProduct::className(), ['cartId' => 'id']);
+    }
+    
+    /**
      * Find cart by hash value.
      * @param string $hash
      * @return Cart|null
@@ -104,7 +113,8 @@ class Cart extends \yii\db\ActiveRecord
     }
     
     /**
-     * Return user cart if already available or create a new one.
+     * Return user cart from cookie hash or user ID.
+     * Updates user ID if not set.
      * @return Cart
      */
     public static function getCurrentCart(){
@@ -118,10 +128,7 @@ class Cart extends \yii\db\ActiveRecord
         if(!$cart && !$isGuest){ // if user is signed in
             $cart = self::findCartByUserId(Yii::$app->user->id);
         }
-        if(!$cart){ // Create new one
-            $cart = self::createCart();
-        }
-        if(!$isGuest && !$cart->userId){ // Update userId if user is signed in
+        if($cart && !$isGuest && !$cart->userId){ // Update userId if user is signed in
             $cart->userId = Yii::$app->user->id;
             $cart->save(false);
         }
@@ -140,5 +147,18 @@ class Cart extends \yii\db\ActiveRecord
         $model->productId = $productId;
         $model->variationId = $variationId;
         return $model->save(false);
+    }
+    
+    /**
+     * Get total price of all products of this cart
+     * @return integer
+     */
+    public function getTotal(){
+        $total = 0;
+        $cartProducts = $this->getCartProducts()->with(['product'])->all();
+        foreach($cartProducts as $cartProduct){
+            $total += $cartProduct->getTotal();
+        }
+        return $total;
     }
 }

@@ -55,13 +55,14 @@ class ProductVariation extends \yii\db\ActiveRecord
     
     /**
      * Return variation description: attributes and values as string
+     * @param boolean $withAttributeName Include attribute name
      * @return string
      */
-    public function getText(){
+    public function getText($withAttributeName = true){
         $attributes = $this->productVariationAttributes;
         $array = [];
         foreach($attributes as $attribute){
-            $array[] = $attribute->variationAttributeName. ': '.$attribute->value;
+            $array[] = $withAttributeName ? $attribute->variationAttributeName. ': '.$attribute->value : $attribute->value;
         }
         return implode(', ', $array);
     }
