@@ -17,8 +17,8 @@ class m170329_115146_create_shop_cart_table extends Migration
             'id' => $this->primaryKey(),
             'hash' => $this->string()->unique(),
             'userId' => $this->integer(),
-            'createdTime' => $this->time()->notNull(),
-            'updatedTime' => $this->time()->notNull(),
+            'createdTime' => $this->dateTime()->notNull(),
+            'updatedTime' => $this->dateTime()->notNull(),
             'closed' => $this->boolean()->defaultValue(0),
         ]);
     }

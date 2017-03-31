@@ -75,6 +75,32 @@ class Cart extends \yii\db\ActiveRecord
     }
     
     /**
+     * Returns User model
+     * @return User
+     */
+    public function getUser()
+    {
+        if($this->userId){
+            $class = Yii::$app->user->identityClass;
+            $user = $class::findIdentity($this->userId);
+            return $user;
+        }
+        return null;
+    }
+    
+    /**
+     * Return User name
+     * @return string
+     */
+    public function getUserName(){
+        $user = $this->user;
+        if($user){
+            return $user->getFullName();
+        }
+        return null;
+    }
+    
+    /**
      * Find cart by hash value.
      * @param string $hash
      * @return Cart|null
@@ -110,6 +136,18 @@ class Cart extends \yii\db\ActiveRecord
         $model->userId = Yii::$app->user->id;
         $model->save(false);
         return $model;
+    }
+    
+    /**
+     * Add cart hash to cookie
+     */
+    public function addToCookies(){
+        $cookies = Yii::$app->getResponse()->getCookies();
+        $cookies->add(new \yii\web\Cookie([
+            'name' => 'cart',
+            'value' => $this->hash,
+            'expire' => time() + 86400 * 15, // 15 days
+        ]));
     }
     
     /**
@@ -157,8 +195,18 @@ class Cart extends \yii\db\ActiveRecord
         $total = 0;
         $cartProducts = $this->getCartProducts()->with(['product'])->all();
         foreach($cartProducts as $cartProduct){
-            $total += $cartProduct->getTotal();
+            $total += $cartProduct->getPrice();
         }
         return $total;
+    }
+    
+    /**
+     * Remove CartProduct from this cart
+     * @param int $cartProductId
+     * @return boolean
+     */
+    public function removeProduct($cartProductId){
+        $deleted = CartProduct::deleteAll(['cartId'=>$this->id, 'id'=>$cartProductId]);
+        return $deleted ? TRUE : FALSE;
     }
 }

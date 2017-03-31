@@ -18,8 +18,9 @@ class m170329_121226_create_shop_cart_product_table extends Migration
             'cartId' => $this->integer()->notNull(),
             'productId' => $this->integer()->notNull(),
             'variationId' => $this->integer(),
-            'price' => $this->decimal(15, 2)->null(),
             'quantity' => $this->integer()->defaultValue(1),
+            'price' => $this->decimal(15, 2)->null(),
+            'description' => $this->text()->null(),
             'time' => $this->dateTime(),
         ]);
     }
