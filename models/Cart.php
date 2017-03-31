@@ -187,17 +187,22 @@ class Cart extends \yii\db\ActiveRecord
         return $model->save(false);
     }
     
+    private $_total = null;
+    
     /**
      * Get total price of all products of this cart
      * @return integer
      */
     public function getTotal(){
-        $total = 0;
-        $cartProducts = $this->getCartProducts()->with(['product'])->all();
-        foreach($cartProducts as $cartProduct){
-            $total += $cartProduct->getPrice();
+        if($this->_total === null){
+            $total = 0;
+            $cartProducts = $this->getCartProducts()->with(['product'])->all();
+            foreach($cartProducts as $cartProduct){
+                $total += $cartProduct->getPrice();
+            }
+            $this->_total = $total;
         }
-        return $total;
+        return $this->_total;
     }
     
     /**
