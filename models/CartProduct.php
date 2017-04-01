@@ -112,11 +112,42 @@ class CartProduct extends \yii\db\ActiveRecord
     }
     
     /**
-     * Get price if saved otherwise calculate it from products.
+     * Get price if saved otherwise calculate it from product.
      * @return int
      */
     public function getPrice(){
         return $this->price ? $this->price : $this->getTotal();
+    }
+    
+    /**
+     * Get description from product.
+     * @return string
+     */
+    public function getDescriptionFromProduct(){
+        return $this->variation ? $this->getProductName() . ': '.$this->getVariationText() : $this->getProductName();
+    }
+    
+    /**
+     * Get description if saved, otherwise from product.
+     * @return string
+     */
+    public function getDescription(){
+        if(!$this->description){
+            $this->getDescriptionFromProduct();
+        }
+        else{
+            return $this->description;
+        }
+    }
+    
+    /**
+     * Set price and product description
+     * @return boolean
+     */
+    public function close(){
+        $this->price = $this->getTotal();
+        $this->description = $this->getDescriptionFromProduct();
+        return $this->save(false);
     }
 
 }

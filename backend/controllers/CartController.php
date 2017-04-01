@@ -43,7 +43,7 @@ class CartController extends AdminController
             'query' => CartProduct::find()->andWhere(['cartId'=>$model->id]),
         ]);
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
             'dataProvider' => $dataProvider,
         ]);
     }

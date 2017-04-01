@@ -214,4 +214,22 @@ class Cart extends \yii\db\ActiveRecord
         $deleted = CartProduct::deleteAll(['cartId'=>$this->id, 'id'=>$cartProductId]);
         return $deleted ? TRUE : FALSE;
     }
+    
+    /**
+     * Close cart and all Cart Products
+     * @return boolean
+     */
+    public function close(){
+        $allSaved = true;
+        foreach($this->cartProducts as $cartProduct){
+            if(!$cartProduct->close()){
+                $allSaved = false;
+            }
+        }
+        if($allSaved){
+            $this->closed = 1;
+            $allSaved = $this->save(false);
+        }
+        return $allSaved;
+    }
 }
