@@ -97,6 +97,15 @@ class Order extends \yii\db\ActiveRecord
             'ipAddress' => 'Ip Address',
         ];
     }
+    
+    /**
+     * Cart relation.
+     * @return mixed
+     */
+    public function getCart()
+    {
+        return $this->hasOne(Cart::className(), ['id' => 'cartId']);
+    }
 
     /**
      * Returns User model
@@ -106,7 +115,7 @@ class Order extends \yii\db\ActiveRecord
     {
         if($this->userId) {
             $class = Yii::$app->user->identityClass;
-            $user = $class::findIdentity($this->userId);
+            $user = $class::findUserById($this->userId);
             return $user;
         }
         return null;
@@ -124,8 +133,9 @@ class Order extends \yii\db\ActiveRecord
         }
         return null;
     }
-    
-    public static function getStatusList(){
+
+    public static function getStatusList()
+    {
         $array = [
             self::STATUS_PENDING_PAYMENT => 'Pending Payment',
             self::STATUS_PAID => 'Paid',
@@ -167,6 +177,17 @@ class Order extends \yii\db\ActiveRecord
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get orders of a certain user
+     * @param int $userId
+     * @return Order[]
+     */
+    public static function getOrdersByUser($userId)
+    {
+        $models = self::find()->andWhere(['userId' => $userId])->andWhere(['!=', 'status', self::STATUS_PENDING_PAYMENT])->orderBy(['id'=>SORT_DESC])->all();
+        return $models;
     }
 
 }

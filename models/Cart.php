@@ -82,7 +82,7 @@ class Cart extends \yii\db\ActiveRecord
     {
         if($this->userId){
             $class = Yii::$app->user->identityClass;
-            $user = $class::findIdentity($this->userId);
+            $user = $class::findUserById($this->userId);
             return $user;
         }
         return null;
