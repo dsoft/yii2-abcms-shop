@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use abcms\shop\models\Cart;
 
 /* @var $this yii\web\View */
 /* @var $searchModel abcms\shop\models\CartSearch */
@@ -31,6 +32,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'createdTime',
             'updatedTime',
             'closed:boolean',
+            [
+                'attribute' => 'typeId',
+                'value' => function($model){
+                    return $model->getType();
+                },
+                'filter' => Cart::getTypesList(),
+            ],
 
             ['class' => 'yii\grid\ActionColumn', 'template'=>'{view}'],
         ],

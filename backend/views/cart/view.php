@@ -28,6 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'createdTime',
             'updatedTime',
             'closed:boolean',
+            'type',
             [
                 'label' => 'Total',
                 'value' => $model->total.'$',

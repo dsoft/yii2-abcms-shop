@@ -18,7 +18,7 @@ class CartSearch extends Cart
     public function rules()
     {
         return [
-            [['id', 'userId', 'closed'], 'integer'],
+            [['id', 'userId', 'closed', 'typeId'], 'integer'],
             [['hash', 'createdTime', 'updatedTime'], 'safe'],
         ];
     }
@@ -69,6 +69,7 @@ class CartSearch extends Cart
             'createdTime' => $this->createdTime,
             'updatedTime' => $this->updatedTime,
             'closed' => $this->closed,
+            'typeId' => $this->typeId,
         ]);
 
         $query->andFilterWhere(['like', 'hash', $this->hash]);

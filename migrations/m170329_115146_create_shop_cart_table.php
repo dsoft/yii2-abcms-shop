@@ -20,6 +20,7 @@ class m170329_115146_create_shop_cart_table extends Migration
             'createdTime' => $this->dateTime()->notNull(),
             'updatedTime' => $this->dateTime()->notNull(),
             'closed' => $this->boolean()->defaultValue(0),
+            'typeId' => $this->smallInteger()->defaultValue(1),
         ]);
     }
 
