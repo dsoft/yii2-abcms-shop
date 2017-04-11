@@ -12,6 +12,8 @@ use abcms\library\behaviors\TimeBehavior;
  * @property integer $id
  * @property integer $userId
  * @property integer $cartId
+ * @property string $subTotal
+ * @property string $shippingPrice
  * @property string $total
  * @property string $note
  * @property string $firstName
@@ -82,6 +84,8 @@ class Order extends \yii\db\ActiveRecord
             'id' => 'ID',
             'userId' => 'User',
             'cartId' => 'Cart ID',
+            'subTotal' => 'Sub Total',
+            'shippingPrice' => 'Shipping Price',
             'total' => 'Total',
             'note' => 'Note',
             'firstName' => 'First Name',
@@ -154,6 +158,27 @@ class Order extends \yii\db\ActiveRecord
         $list = self::getStatusList();
         return isset($list[$this->status]) ? $list[$this->status] : null;
     }
+    
+    /**
+     * Create new order model and returns it.
+     * @param Cart $cart
+     * @param yii\base\Model $address
+     * @param int $userId
+     * @param strig $note
+     * @return \abcms\shop\models\Order
+     */
+    protected static function getNewOrder($cart, $address, $userId, $note){
+        $order = new Order();
+        $order->setAttributes($address->attributes);
+        $order->userId = $userId;
+        $order->cartId = $cart->id;
+        $order->subTotal = $cart->getTotal();
+        $order->shippingPrice = 0;
+        $order->total = $order->subTotal + $order->shippingPrice;
+        $order->note = $note;
+        $order->status = Order::STATUS_PENDING_PAYMENT;
+        return $order;
+    }
 
     /**
      * Creates new order.
@@ -165,13 +190,7 @@ class Order extends \yii\db\ActiveRecord
      */
     public static function createOrder($cart, $address, $userId, $note)
     {
-        $order = new Order();
-        $order->setAttributes($address->attributes);
-        $order->userId = $userId;
-        $order->cartId = $cart->id;
-        $order->total = $cart->getTotal();
-        $order->note = $note;
-        $order->status = Order::STATUS_PENDING_PAYMENT;
+        $order = static::getNewOrder($cart, $address, $userId, $note);
         if($order->save(false)) {
             $cart->close();
             return true;

@@ -17,6 +17,8 @@ class m170401_154356_create_shop_order_table extends Migration
             'id' => $this->primaryKey(),
             'userId' => $this->integer()->notNull(),
             'cartId' => $this->integer()->notNull(),
+            'subTotal' => $this->decimal(15, 2)->notNull(),
+            'shippingPrice' => $this->decimal(15, 2)->notNull()->defaultValue(0),
             'total' => $this->decimal(15, 2)->notNull(),
             'note' => $this->string(),
             'firstName' => $this->string()->notNull(),

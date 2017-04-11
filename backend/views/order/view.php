@@ -1,7 +1,6 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
 use abcms\shop\models\Order;
 use yii\grid\GridView;
 use yii\helpers\Url;
@@ -22,39 +21,8 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= Html::a('Update Status', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         </p>
     <?php endif; ?>
-
-    <?=
-    DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            [
-                'attribute' => 'userId',
-                'value' => $model->getUserName(),
-            ],
-            'cartId',
-            [
-                'attribute' => 'total',
-                'value' => $model->total.'$',
-            ],
-            'note',
-            'firstName',
-            'lastName',
-            'email:email',
-            'phone',
-            'country',
-            'city',
-            'address',
-            [
-                'attribute' => 'status',
-                'value' => $model->getStatusName(),
-            ],
-            'createdTime',
-            'updatedTime',
-            'ipAddress',
-        ],
-    ])
-    ?>
+        
+    <?= $this->render('_order-detail', ['model'=>$model]) ?>
 
     <h2>Products</h2>
     <?=
