@@ -69,7 +69,7 @@ class Search extends Object
         $query = Product::find()->active();
         $query->with(['album', 'variations']);
         if(!$this->orderBy && !$this->keyword) { // Default order by
-            $this->orderBy = ['time' => SORT_DESC];
+            $this->orderBy = ['shop_product.id' => SORT_DESC];
         }
         if($this->orderBy) {
             $query->orderBy($this->orderBy);

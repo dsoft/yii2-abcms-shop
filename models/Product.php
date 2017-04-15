@@ -273,33 +273,70 @@ class Product extends \abcms\library\base\BackendActiveRecord
                     array_shift($attributes);
                     foreach($variations as $variation) {
                         $subArray = $getVariationArray($attributes, [$variation]);
-                        if(isset($variationArray['values'][$variation["value$attributeId"]]['id']) && $variationArray['values'][$variation["value$attributeId"]]['id'] == $subArray['id']){
+                        if(isset($variationArray['values'][$variation["value$attributeId"]]['id']) && $variationArray['values'][$variation["value$attributeId"]]['id'] == $subArray['id']) {
                             $variationArray['values'][$variation["value$attributeId"]]['values'] += $subArray['values'];
                         }
-                        else{
+                        else {
                             $variationArray['values'][$variation["value$attributeId"]] = $subArray;
                         }
                     }
                     return $variationArray;
                 }
-                else{ // Last level: add variation id and quantity
-                    return ['variationId'=>$variations[0]['id'], 'quantity'=>$variations[0]['quantity']];
+                else { // Last level: add variation id and quantity
+                    return ['variationId' => $variations[0]['id'], 'quantity' => $variations[0]['quantity']];
                 }
             };
             $variationsArray = $getVariationArray($uniqueAttributes, $variations);
         }
         return $variationsArray;
     }
-    
+
     /**
      * If product has variations return true.
      * @return boolean
      */
-    public function hasVariations(){
-        if($this->variations){
+    public function hasVariations()
+    {
+        if($this->variations) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Test if product is available:
+     * If product doesn't have variations check availableQuantity
+     * Otherwise check if there's one variation with available quantity.
+     * @param integer $variationId If set check if certain variation is available
+     * @return boolean
+     */
+    public function isAvailable($variationId = null)
+    {
+        if($this->hasVariations()) {
+            if($variationId) { // Check if certain variation is available
+                foreach($this->variations as $variation) {
+                    if($variation->id == $variationId) {
+                        if($variation->quantity !== 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                }
+            }
+            else { // Check if any variation is available
+                foreach($this->variations as $variation) {
+                    if($variation->quantity !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        else {
+            return ($this->availableQuantity !== 0) ? true : false;
+        }
     }
 
 }

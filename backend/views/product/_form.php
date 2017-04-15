@@ -31,7 +31,8 @@ use abcms\gallery\module\models\GalleryAlbum;
     ])
     ?>
 
-    <?= $form->field($model, 'availableQuantity')->textInput() ?>
+    <?= $form->field($model, 'availableQuantity')->textInput()->hint("0: not available, >0 : available, keep empty if available and quanitity not tracked. <br />"
+            . "If variations are available, this field will be ignored.") ?>
 
     <?= $form->field($model, 'brandId')->dropDownList(Brand::getBrandsList(), ['prompt' => 'Select Brand']) ?>
     

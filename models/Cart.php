@@ -269,4 +269,20 @@ class Cart extends \yii\db\ActiveRecord
         }
         return $allSaved;
     }
+    
+    /**
+     * Check if all products chosen in this cart are available
+     * @return boolean
+     */
+    public function areProductsAvailable()
+    {
+        $cartProducts = $this->cartProducts;
+        foreach($cartProducts as $cartProduct){
+            $product = $cartProduct->product;
+            if(!$product->isAvailable($cartProduct->variationId)){
+                return false;
+            }
+        }
+        return true;
+    }
 }
