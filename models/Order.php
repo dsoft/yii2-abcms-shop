@@ -5,6 +5,7 @@ namespace abcms\shop\models;
 use Yii;
 use abcms\library\behaviors\IpAddressBehavior;
 use abcms\library\behaviors\TimeBehavior;
+use abcms\shop\shipping\ShippingAbstract;
 
 /**
  * This is the model class for table "shop_order".
@@ -165,15 +166,21 @@ class Order extends \yii\db\ActiveRecord
      * @param yii\base\Model $address
      * @param int $userId
      * @param strig $note
+     * @param ShippingAbstract $shipping
      * @return \abcms\shop\models\Order
      */
-    protected static function getNewOrder($cart, $address, $userId, $note){
+    protected static function getNewOrder($cart, $address, $userId, $note, $shipping){
         $order = new Order();
         $order->setAttributes($address->attributes);
         $order->userId = $userId;
         $order->cartId = $cart->id;
         $order->subTotal = $cart->getTotal();
-        $order->shippingPrice = 0;
+        
+        // Calculating shipping price
+        $shipping->cart = $cart;
+        $shipping->address = $address;
+        $order->shippingPrice = $shipping->getShippingPrice();
+        
         $order->total = $order->subTotal + $order->shippingPrice;
         $order->note = $note;
         $order->status = Order::STATUS_PENDING_PAYMENT;
@@ -185,12 +192,13 @@ class Order extends \yii\db\ActiveRecord
      * @param Cart $cart
      * @param yii\base\Model $address
      * @param int $userId
-     * @param strig $note
+     * @param string $note
+     * @param ShippingAbstract $shipping
      * @return boolean
      */
-    public static function createOrder($cart, $address, $userId, $note)
+    public static function createOrder($cart, $address, $userId, $note, $shipping)
     {
-        $order = static::getNewOrder($cart, $address, $userId, $note);
+        $order = static::getNewOrder($cart, $address, $userId, $note, $shipping);
         if($order->save(false)) {
             $cart->close();
             return true;

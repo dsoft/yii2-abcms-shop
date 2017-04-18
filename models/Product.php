@@ -7,6 +7,7 @@ use abcms\library\behaviors\TimeBehavior;
 use abcms\gallery\module\models\GalleryAlbum;
 use abcms\gallery\module\models\GalleryImage;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "shop_product".
@@ -273,8 +274,8 @@ class Product extends \abcms\library\base\BackendActiveRecord
                     array_shift($attributes);
                     foreach($variations as $variation) {
                         $subArray = $getVariationArray($attributes, [$variation]);
-                        if(isset($variationArray['values'][$variation["value$attributeId"]]['id']) && $variationArray['values'][$variation["value$attributeId"]]['id'] == $subArray['id']) {
-                            $variationArray['values'][$variation["value$attributeId"]]['values'] += $subArray['values'];
+                        if(isset($variationArray['values'][$variation["value$attributeId"]]['id']) && $variationArray['values'][$variation["value$attributeId"]]['id'] == $subArray['id']) {                       
+                            $variationArray['values'][$variation["value$attributeId"]]['values'] = ArrayHelper::merge($variationArray['values'][$variation["value$attributeId"]]['values'], $subArray['values']);
                         }
                         else {
                             $variationArray['values'][$variation["value$attributeId"]] = $subArray;
