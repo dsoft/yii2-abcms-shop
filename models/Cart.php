@@ -81,6 +81,21 @@ class Cart extends \yii\db\ActiveRecord
     }
     
     /**
+     * Get CartProducts belonging to this cart with all needed relations.
+     * @return mixed
+     */
+    public function getCartProductsWithRelations()
+    {
+        return $this->hasMany(CartProduct::className(), ['cartId' => 'id'])->with([
+                        'product',
+                        'product.album',
+                        'product.variations',
+                        'variation',
+                        'variation.productVariationAttributes',
+                    ]);
+    }
+    
+    /**
      * Returns User model
      * @return User
      */
@@ -233,7 +248,7 @@ class Cart extends \yii\db\ActiveRecord
     public function getTotal(){
         if($this->_total === null){
             $total = 0;
-            $cartProducts = $this->getCartProducts()->with(['product'])->all();
+            $cartProducts = $this->cartProductsWithRelations;
             foreach($cartProducts as $cartProduct){
                 $total += $cartProduct->getPrice();
             }
@@ -276,7 +291,7 @@ class Cart extends \yii\db\ActiveRecord
      */
     public function areProductsAvailable()
     {
-        $cartProducts = $this->cartProducts;
+        $cartProducts = $this->cartProductsWithRelations;
         foreach($cartProducts as $cartProduct){
             $product = $cartProduct->product;
             if(!$product->isAvailable($cartProduct->variationId)){

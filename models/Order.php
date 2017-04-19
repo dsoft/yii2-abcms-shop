@@ -213,7 +213,11 @@ class Order extends \yii\db\ActiveRecord
      */
     public static function getOrdersByUser($userId)
     {
-        $models = self::find()->andWhere(['userId' => $userId])->andWhere(['!=', 'status', self::STATUS_PENDING_PAYMENT])->orderBy(['id'=>SORT_DESC])->all();
+        $models = self::find()
+                ->andWhere(['userId' => $userId])
+                ->andWhere(['!=', 'status', self::STATUS_PENDING_PAYMENT])
+                ->with('cart', 'cart.cartProducts')
+                ->orderBy(['id'=>SORT_DESC])->all();
         return $models;
     }
 
