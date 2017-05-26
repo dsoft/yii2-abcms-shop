@@ -194,14 +194,14 @@ class Order extends \yii\db\ActiveRecord
      * @param int $userId
      * @param string $note
      * @param ShippingAbstract $shipping
-     * @return boolean
+     * @return false|Order
      */
     public static function createOrder($cart, $address, $userId, $note, $shipping)
     {
         $order = static::getNewOrder($cart, $address, $userId, $note, $shipping);
         if($order->save(false)) {
             $cart->close();
-            return true;
+            return $order;
         }
         return false;
     }
