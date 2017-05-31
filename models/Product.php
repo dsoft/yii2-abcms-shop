@@ -27,6 +27,16 @@ use yii\helpers\ArrayHelper;
  */
 class Product extends \abcms\library\base\BackendActiveRecord
 {
+    
+    /**
+     * @event Event an event that is triggered after trying to decrease the quantity of an unavailable product
+     */
+    const EVENT_ORDERING_UNAVAILABLE_PRODUCT = 'orderingUnavailableProduct';
+    
+    /**
+     * @event Event an event that is triggered after a product become unavailable
+     */
+    const EVENT_PRODUCT_BECAME_UNAVAILABLE = 'productBecameUnavailable';
 
     /**
      * @inheritdoc
@@ -338,6 +348,57 @@ class Product extends \abcms\library\base\BackendActiveRecord
         else {
             return ($this->availableQuantity !== 0) ? true : false;
         }
+    }
+    
+    /**
+     * Decrease quantity for this product
+     * @param int $quantity Quantity that should be decreased
+     * @return boolean If quantity available and was decreased
+     */
+    public function decreaseQuantity($quantity)
+    {
+        if($this->availableQuantity === null){
+            return true;
+        }
+        elseif($this->availableQuantity === 0){
+            $this->orderingUnavailableProduct();
+            return false;
+        }
+        else{
+            if($this->availableQuantity >= $quantity){
+                $this->availableQuantity -= $quantity;
+                if($this->save(false)){
+                    if($this->availableQuantity === 0){ // Product became out of stock
+                        $this->productBecameUnavailable();
+                    }
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+            else{
+                $this->orderingUnavailableProduct();
+                return false;
+            }
+        }
+    }
+    
+    /**
+     * This method is invoked after trying to decrease the quantity of an unavailable product.
+     * The default implementation raises the [[EVENT_ORDERING_UNAVAILABLE_PRODUCT]] event.
+     */
+    public function orderingUnavailableProduct()
+    {
+        $this->trigger(self::EVENT_ORDERING_UNAVAILABLE_PRODUCT);
+    }
+    
+    /**
+     * This method is invoked after decreasing the quantity of a certain product and product become unavailable
+     * The default implementation raises the [[EVENT_PRODUCT_BECAME_UNAVAILABLE]] event.
+     */
+    public function productBecameUnavailable()
+    {
+        $this->trigger(self::EVENT_PRODUCT_BECAME_UNAVAILABLE);
     }
 
 }

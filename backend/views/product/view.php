@@ -70,6 +70,7 @@ if($variationFormFocused){
                 'class' => 'yii\grid\SerialColumn',
                 'footer' => '<b>'.($variation->isNewRecord ? 'Add new item:' : 'Update Variation').'</b>',
             ],
+            'id',
             [
                 'header' => 'Variation',
                 'value' => function($data) {

@@ -220,5 +220,31 @@ class Order extends \yii\db\ActiveRecord
                 ->orderBy(['id'=>SORT_DESC])->all();
         return $models;
     }
+    
+    /**
+     * Handle all actions that should be done after a successful paid order
+     * @return boolean
+     */
+    public function afterSuccessfulOrder()
+    {
+        $this->status = self::STATUS_PAID;
+        if($this->save(false)) {
+            $this->decreaseQuantity();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Decrease all related order quantity
+     */
+    public function decreaseQuantity()
+    {
+        $cart = $this->cart;
+        $cartProducts = $cart->cartProducts;
+        foreach($cartProducts as $cartProduct){
+            $cartProduct->decreaseQuantity();
+        }
+    }
 
 }

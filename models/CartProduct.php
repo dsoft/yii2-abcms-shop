@@ -149,5 +149,20 @@ class CartProduct extends \yii\db\ActiveRecord
         $this->description = $this->getDescriptionFromProduct();
         return $this->save(false);
     }
+    
+    /**
+     * Decrease quantity for product or variation
+     */
+    public function decreaseQuantity()
+    {
+        $product = $this->product;
+        if($this->variationId){
+            $variation = $this->variation;
+            $variation->decreaseQuantity($this->quantity);
+        }
+        else{
+            $product->decreaseQuantity($this->quantity);
+        }
+    }
 
 }
