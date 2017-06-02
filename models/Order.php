@@ -36,6 +36,11 @@ class Order extends \yii\db\ActiveRecord
     const STATUS_PAID = 2;
     const STATUS_IN_PROCESS = 3;
     const STATUS_SHIPPED = 4;
+    
+    /**
+     * @event Event an event that is triggered after a successful order
+     */
+    const EVENT_AFTER_SUCCESSFUL_ORDER = 'afterSuccessfulOrder';
 
     /**
      * @inheritdoc
@@ -229,6 +234,7 @@ class Order extends \yii\db\ActiveRecord
     {
         $this->status = self::STATUS_PAID;
         if($this->save(false)) {
+            $this->trigger(self::EVENT_AFTER_SUCCESSFUL_ORDER);
             $this->decreaseQuantity();
             return true;
         }
