@@ -34,7 +34,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'parentId',
                 'value' => $model->getParentName(),
             ],
-            'active',
+            'active:boolean',
+            'ordering',
         ],
     ]) ?>
 

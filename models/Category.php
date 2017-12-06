@@ -13,6 +13,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $parentId
  * @property integer $active
  * @property integer $deleted
+ * @property integer $ordering
  */
 class Category extends \abcms\library\base\BackendActiveRecord
 {
@@ -37,7 +38,7 @@ class Category extends \abcms\library\base\BackendActiveRecord
     {
         return [
             [['name'], 'required'],
-            [['parentId', 'active'], 'integer'],
+            [['parentId', 'active', 'ordering'], 'integer'],
             [['name'], 'string', 'max' => 255],
         ];
     }
@@ -76,6 +77,7 @@ class Category extends \abcms\library\base\BackendActiveRecord
             'parentId' => 'Parent',
             'active' => 'Active',
             'deleted' => 'Deleted',
+            'ordering' => 'Ordering',
         ];
     }
 
@@ -105,7 +107,7 @@ class Category extends \abcms\library\base\BackendActiveRecord
     {
         return $this->hasMany(Category::className(), ['parentId' => 'id'])->andWhere([
             'active' => 1,
-        ])->orderBy('name ASC');
+        ])->orderBy(['ordering'=>SORT_ASC, 'name'=>SORT_ASC]);
     }
 
     /**
@@ -139,7 +141,7 @@ class Category extends \abcms\library\base\BackendActiveRecord
      */
     public static function getFrontendCategories(){
         $query = self::find();
-        $query->andWhere(['parentId' => null, 'active'=>1])->orderBy('name ASC');
+        $query->andWhere(['parentId' => null, 'active'=>1])->orderBy(['ordering'=>SORT_ASC, 'name'=>SORT_ASC]);
         $query->with(['children']);
         $models = $query->all();
         return $models;

@@ -34,6 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => Category::getParentsList(),
             ],
+            'ordering',
             ['class' => 'abcms\library\grid\ActivateColumn'],
             ['class' => 'yii\grid\ActionColumn'],
         ],
