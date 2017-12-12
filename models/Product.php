@@ -21,6 +21,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $availableQuantity
  * @property integer $brandId
  * @property integer $albumId
+ * @property integer $featured
  * @property integer $active
  * @property integer $deleted
  * @property string $time
@@ -53,7 +54,7 @@ class Product extends \abcms\library\base\BackendActiveRecord
     {
         return [
             [['name', 'categoryId', 'finalPrice'], 'required'],
-            [['categoryId', 'availableQuantity', 'brandId', 'active'], 'integer'],
+            [['categoryId', 'availableQuantity', 'brandId', 'active', 'featured'], 'integer'],
             [['finalPrice', 'originalPrice'], 'number'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
@@ -103,6 +104,7 @@ class Product extends \abcms\library\base\BackendActiveRecord
             'brandId' => 'Brand',
             'albumId' => 'Album',
             'active' => 'Active',
+            'featured' => 'Featured',
             'deleted' => 'Deleted',
             'time' => 'Time',
         ];

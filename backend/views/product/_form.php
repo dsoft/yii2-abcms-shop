@@ -39,6 +39,8 @@ use abcms\gallery\module\models\GalleryAlbum;
     <?= $form->field(new GalleryAlbum(), 'images[]')->fileInput(['multiple' => true])->label('Add Images'); ?>
 
     <?= $form->field($model, 'active')->checkbox() ?>
+    
+    <?= $form->field($model, 'featured')->checkbox() ?>
 
     <?= \abcms\multilanguage\widgets\TranslationForm::widget(['model' => $model]) ?>
 

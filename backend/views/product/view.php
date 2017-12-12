@@ -46,6 +46,7 @@ if($variationFormFocused){
             'description:html',
             'availableQuantity',
             'brandName',
+            'featured:boolean',
             'active:boolean',
             'time',
         ],
