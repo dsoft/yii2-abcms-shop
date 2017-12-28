@@ -78,7 +78,8 @@ class Search extends Object
             $query->limit($this->limit)->offset($this->offset);
         }
         if($this->keyword) {
-            $query->andWhere("MATCH (name, description) AGAINST (:keyword IN BOOLEAN MODE)", [':keyword' => $this->keyword.'*']);
+            $query->join('LEFT JOIN', 'shop_brand', 'shop_brand.id = shop_product.brandId');
+            $query->andWhere("(MATCH (shop_product.name, description) AGAINST (:keyword IN BOOLEAN MODE) OR MATCH (shop_brand.name) AGAINST (:keyword IN BOOLEAN MODE) )", [':keyword' => $this->keyword.'*']);
         }
         if($this->categoryId) {
             $query->andWhere(['categoryId' => $this->getCategoriesForSearch()]);
