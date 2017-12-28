@@ -249,13 +249,14 @@ class Search extends Object
         $query->innerJoin("shop_product_variation_attribute as attribute", "attribute.variationId = variation.id");
         $query->groupBy('attribute.attributeId, attribute.value');
         $query->select('*, attribute.attributeId, attribute.value, count(*) as count');
+        $query->orderBy(['attribute.value' => SORT_ASC]);
         $array = $query->asArray()->all();
         $attributesIds = [];
         foreach($array as $val) {
             $attributesIds[$val['attributeId']][$val['value']] = $val['count'];
         }
         if($attributesIds){
-            $models = VariationAttribute::find()->andWhere(['id'=> array_keys($attributesIds)])->all();
+            $models = VariationAttribute::find()->andWhere(['id'=> array_keys($attributesIds)])->orderBy(['name' => SORT_ASC])->all();
             foreach($models as $model){
                 $model->values = $attributesIds[$model->id];
             }
